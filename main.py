@@ -3,6 +3,7 @@ from supabase import create_client
 from datetime import datetime
 import pandas as pd
 import base64
+import hmac
 
 # Inicializar la conexión a Supabase
 @st.cache_resource
@@ -10,9 +11,6 @@ def init_connection():
     url = st.secrets["SUPABASE_URL"]
     key = st.secrets["SUPABASE_KEY"]
     return create_client(url, key)
-
-# Inicializar la conexión a Supabase
-supabase = init_connection()
 
 # Función para generar un enlace de descarga automática
 def generate_auto_download(df: pd.DataFrame, filename: str):
@@ -44,6 +42,37 @@ def download_data():
         generate_auto_download(df, "datos.csv")
     else:
         st.warning("No hay datos disponibles para descargar.")
+
+# Función para verificar la contraseña
+def check_password():
+    """Retorna `True` si el usuario tiene la contraseña correcta."""
+
+    def password_entered():
+        """Chequea que la contraseña ingresada sea la correcta."""
+        if hmac.compare_digest(st.session_state["password"], st.secrets["PASSWORD"]):
+            st.session_state["password_correct"] = True
+            del st.session_state["password"]  # No guarda la contraseña.
+        else:
+            st.session_state["password_correct"] = False
+
+    # Retorna True si la contraseña es correcta (Si no existe la clave "password_correct" retorna `False`).
+    if st.session_state.get("password_correct", False):
+        return True
+
+    # Muestra la contraseña ingresada.
+    st.text_input("Contraseña", type="password", on_change=password_entered, key="password")
+
+    if "password_correct" in st.session_state:
+        st.error("😕 Contraseña incorrecta.")
+    return False
+
+
+if not check_password():
+    st.stop()  # No continuar si check_password no es `True`.
+
+
+# Inicializar la conexión a Supabase
+supabase = init_connection()
 
 # Título de la aplicación
 st.title("📅 App de Registro de Fechas")
