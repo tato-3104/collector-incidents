@@ -1,6 +1,3 @@
-# collector-incidents
-<<<<<<< HEAD
-This repository contains the web application for uploading and downloading incident data.
-=======
-This repository contains the web application for collecting incidents.
->>>>>>> 0dbed79 (Initial commit from local)
+# Collector Incidents
+
+Este repositorio contiene la aplicación web para la recolección y gestión de incidentes. La aplicación permite registrar y descargar incidentes reportados.
