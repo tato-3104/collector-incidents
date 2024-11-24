@@ -4,6 +4,7 @@ from datetime import datetime
 import pandas as pd
 import base64
 import hmac
+import pytz
 
 # Inicializar la conexión a Supabase
 @st.cache_resource
@@ -66,6 +67,16 @@ def check_password():
         st.error("😕 Contraseña incorrecta.")
     return False
 
+# Función para obtener la hora actual en Colombia
+def check_time_colombia():
+    """Retorna la hora actual en Colombia."""
+    # Definir la zona horaria de Colombia
+    colombia_tz = pytz.timezone('America/Bogota')
+    # Obtener la hora actual en UTC
+    time_utc = datetime.now(pytz.utc)
+    # Convertir la hora a la zona horaria de Colombia
+    time_colombia = time_utc.astimezone(colombia_tz)
+    return time_colombia
 
 if not check_password():
     st.stop()  # No continuar si check_password no es `True`.
@@ -83,7 +94,7 @@ selected_date = st.date_input("Selecciona una fecha:", value=None)
 # Botón para confirmar la selección y agregar los datos a la base de datos
 if st.button("Registrar"):
     if selected_date:  # Verificar que la casilla esté llena
-        current_datetime = datetime.now()
+        current_datetime = check_time_colombia()
         date_now = current_datetime.strftime("%Y-%m-%d")
         time_now = current_datetime.strftime("%H:%M:%S")
 
